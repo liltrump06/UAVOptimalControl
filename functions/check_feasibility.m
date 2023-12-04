@@ -1,18 +1,7 @@
-function flag = check_feasibility(constrain_profile,thrust,omegalist,jtraj)
+function [outputArg1,outputArg2] = check_feasibility(inputArg1,inputArg2)
 %CHECK_FEASIBILITY Summary of this function goes here
-% Since angular velocity and thrust timeseries are already solved, there is
-% no need to apply the fast but complex algorithm to check the feasibility;
-fmax = constrain_profile.fmax;
-fmin = constrain_profile.fmin;
-wmax = constrain_profile.wmax;
-flag = true;
-if(max(thrust)>fmax || min(thrust)<fmin)
-    flag = false;
-end
-w1m = max(abs(omegalist(1,:)));
-w2m = max(abs(omegalist(2,:)));
-if w1m^2+w2m^2 > wmax^2
-    flag = false;
-end
+%   Detailed explanation goes here
+outputArg1 = inputArg1;
+outputArg2 = inputArg2;
 end
 
