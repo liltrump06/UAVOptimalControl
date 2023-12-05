@@ -1,7 +1,6 @@
-function droneAll = drone_outlook()
+function droneAll = drone_outlook(scale)
 %% draw a circle
 
-scale = 0.01;
 centerlist = [[-scale,scale];[scale,scale];[-scale,-scale];[scale,-scale]];
 theta = linspace(0, 2*pi, 50);
 numCircles = 4;

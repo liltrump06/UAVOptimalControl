@@ -2,15 +2,16 @@ clc;clear;close all;
 Ts=0.01;T=1; % should be checked by feasibility checker;
 primitive_num = 50;
 
-constrain_profile.fmax = 25; % m/s^2
-constrain_profile.fmin = 5;  % m/s^2
-constrain_profile.wmax = 20; % rad/s
-constrain_profile.pos_boundarys = [0,4,0,4,0,4]';
-ball_profiles = ball_init(T,Ts);
+constraint_profile.fmax = 25; % m/s^2
+constraint_profile.fmin = 5;  % m/s^2
+constraint_profile.wmax = 20; % rad/s
+constraint_profile.pos_boundarys = [0,4,0,4,0,4]';
+ball_profiles = ball_init(Ts);
 %% show trajectory of the ball
 figure(1)
 scatter3(ball_profiles.x(:,4),ball_profiles.x(:,5),ball_profiles.x(:,6),'filled','o','LineWidth',2)
 %% initial states
+
 p0 = [0,0,0]';
 v0 = [0,0,0]';
 a0 = [0,0,0]';
@@ -59,7 +60,5 @@ else
         frame = getframe(gcf);
         writeVideo(outputVideo,frame);
     end
-close(outputVideo);
+    close(outputVideo);
 end
-%%
-drone_outlook()

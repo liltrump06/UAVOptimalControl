@@ -2,14 +2,14 @@ function [Rlist,flist,omegalist] = true_dynamics(atraj,jtraj)
 %TRUE_DYNAMICS Summary of this function goes here
 %   Detailed explanation goes here
 
-g = [0,0,9.81]';
+g = [0,0,-9.81]';
 flist = [];
 omegalist = [];
 Rlist = zeros([3,3,size(atraj,2)]);
 % yawlist = [];
 % pitchlist = [];
 for i = 1:size(atraj,2)
-    f = norm(atraj(:,i)-g);
+    f = norm(atraj(:,i)-g,2);
     yaw = asin(-atraj(2,i)/f);  %alpha
     pitch = asin(-atraj(1,i)/(f*cos(yaw))); %beta
     flist = [flist,f];
