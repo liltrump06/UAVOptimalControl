@@ -4,7 +4,7 @@ function ball_profile = ball_init(Ts)
 
 T = 2;
 ball_profile.m = 1;
-ball_profile.v0 = [0,1,8]';
+ball_profile.v0 = [0,1,2]';
 D= 0.3;
 g=-9.8;
 tspan = linspace(0,T,T/Ts+1);

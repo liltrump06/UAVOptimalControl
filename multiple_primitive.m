@@ -5,10 +5,10 @@ num_T = 21;
 num_theta1 = 25;
 num_theta2 = 7;
 num_thrust = 10;
-constrain_profile.fmax = 25; % m/s^2
-constrain_profile.fmin = 5;  % m/s^2
-constrain_profile.wmax = 20; % rad/s
-constrain_profile.pos_boundarys = [0,4,0,4,0,4]';
+constraint_profile.fmax = 25; % m/s^2
+constraint_profile.fmin = 5;  % m/s^2
+constraint_profile.wmax = 20; % rad/s
+constraint_profile.pos_boundarys = [0,4,0,4,0,4]';
 Tmin = 0.5;
 Tmax = 1.5;
 Tlist = linspace(Tmin,Tmax,num_T);
@@ -16,7 +16,7 @@ theta1list = linspace(-pi/2,pi/2,num_theta1);
 % theta2list = linspace(-pi,pi,num_theta2);
 % theta1list=[0];
 theta2list=[0];
-thrustlist = linspace(constrain_profile.fmin,constrain_profile.fmax,num_thrust);
+thrustlist = linspace(constraint_profile.fmin+1,constraint_profile.fmax-1,num_thrust);
 p0 = [0,0,0]';
 v0 = [0,0,0]';
 a0 = [0,0,0]';
@@ -29,15 +29,17 @@ ptraj_list={};
 Rot_list={};
 J=inf;
 bestcnt = 0;
+failcnt = 0;
 % ptraj_list_z=[];
 cnt = 1;
+plaincnt = 0;
 tic
 for T=Tlist
     for theta1=theta1list
         for theta2=theta2list
             for thrust_f=thrustlist
+                plaincnt = plaincnt+1;
                 tpoints = round(T/Ts)+1;
-                
                 vf = -(ball_profiles.x(tpoints,1:3)/norm(ball_profiles.x(tpoints,1:3),2))';
                 % vf is the normalized vec for af;
                 af_norm = af_direction(vf,theta1,theta2);
@@ -54,16 +56,34 @@ for T=Tlist
                 dv = vf-v0-a0*T;
                 dp = pf-p0-v0*T-0.5*a0*T^2;
                 [alpha,beta,gamma] = coeff_derive(T,dp,dv,da);
+                check_result = check_feasibility(alpha,beta,gamma,0,T,a0,constraint_profile);
+                if check_result == 0
+                    failcnt = failcnt+1;
+                    continue
+                end
+                % Jnow = compute_cost(alpha,beta,gamma,T);
+                % if J > Jnow
+                %     J = Jnow;
+                %     bestcnt = cnt;
+                % else
+                %     continue
+                % end
+
                 [time,jtraj,atraj,vtraj,ptraj] = generate_traj(T,Ts,alpha,beta,gamma,initstate);
-                % feasibility_checker()
                 [Rot,thrust,angular_vel] = true_dynamics(atraj,jtraj);% calculate real dynamics of the drone 
-                ptraj_list{cnt} = ptraj;
-                Rot_list{cnt} = Rot;
+                flag_lite = check_feasibility_lite(constraint_profile,thrust,angular_vel,jtraj);
+                if flag_lite == false
+                    disp("wrong")
+                end
                 Jnow = compute_cost(alpha,beta,gamma,T);
                 if J > Jnow
                     J = Jnow;
                     bestcnt = cnt;
+                else
+                    continue
                 end
+                ptraj_list{cnt} = ptraj;
+                Rot_list{cnt} = Rot;
                 cnt = cnt+1;
             end
         end
@@ -82,14 +102,14 @@ figure(1)
 % quiver3(pflist(1,mid_vec),pflist(2,mid_vec),pflist(3,mid_vec),aflist(1,mid_vec),aflist(2,mid_vec),aflist(3,mid_vec),'r')
 axis equal
 % 
-% hold on 
-% for i = 1: size(pflist,2)
-%         ptraj = ptraj_list{i};
-%         plot(ptraj(2,:),ptraj(3,:))
-% end
-% hold off
-plot(ptraj_best(2,:),ptraj_best(3,:))
-axis([-2,2,-2,2,-4,4])
+hold on 
+for i = 1: bestcnt
+        ptraj = ptraj_list{i};
+        plot(ptraj(2,:),ptraj(3,:))
+end
+hold off
+% plot(ptraj_best(2,:),ptraj_best(3,:))
+% axis([-2,2,-2,2,-4,4])
 %%
 
 videoFile = 'outputVideo1000hz.mp4';  % Choose a filename for your video
@@ -105,11 +125,9 @@ videoFile = 'outputVideo1000hz.mp4';  % Choose a filename for your video
 
     for i = 1:size(ptraj_best,2)
         droneNew = Rot_best(:,:,i)*droneALL+ptraj_best(:,i);
-        
         plot3(ball_profiles.x(:,4),ball_profiles.x(:,5),ball_profiles.x(:,6),'b--')
         hold on
         scatter3(ball_profiles.x(i,4),ball_profiles.x(i,5),ball_profiles.x(i,6),10,'filled')
-        
         scatter3(droneNew(1,:),droneNew(2,:),droneNew(3,:),10,'filled')
         % axis equal
         axis([-3,3,-1,5,-1,8])
