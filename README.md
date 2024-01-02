@@ -1,0 +1,4 @@
+# UAV Optimal Trajectory Generation
+Based on work by [Mark W. Mueller](https://ieeexplore.ieee.org/document/7299672), this project seeks to reproduce a method for quickly generating and validating the feasibility of motion primitives for quadrocopter and similar multi-rotor vehicles. The motion primitives are defined by the quadrocopter’s initial state, the desired motion duration, and any combination of components of the quadrocopter’s position, velocity, and acceleration at the motion’s end.
+Optimal closed-form solution for the primitives can be achieved by using Pontryagin's Minimum Principle. Computationally efficient feasibility test algorithm is also reproduced to rapidly verify a large number of motion primitives, enables reliable trajectory generation.
+A ball-catching simulation is conducted based on the motion primitives generation and feasibility check methods.  
