@@ -1,0 +1,14 @@
+function [time,atraj,vtraj,ptraj] = trajgenefixed()
+time = linspace(0,10,10001);
+x = 0.6*cos(pi/10*time);
+y = 0.6*sin(2*pi/10*time);
+z = -0.4*ones(1,10001);
+ptraj = [x;y;z];
+xdot = -0.06*pi*sin(pi/10*time);
+ydot = 0.12*pi*cos(2*pi/10*time);
+zdot = zeros(1,10001);
+vtraj = [xdot;ydot;zdot];
+xddot = -0.6*(pi/10)^2*cos(pi/10*time);
+yddot = -2.4*(pi/10)^2*sin(2*pi/10*time);
+zddot = zeros(1,10001);
+atraj = [xddot;yddot;zddot];

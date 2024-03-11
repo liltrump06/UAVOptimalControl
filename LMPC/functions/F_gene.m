@@ -11,4 +11,4 @@ Vz = e3'*R'*v;
 T_hat = T+T*c*Vz;
 
 
-F = m*g.*e3-T_hat*R*e3-(c*T-m*c*g).*v;
+F = m*g*e3-T_hat*R*e3-(c*T-m*c*g)*v;

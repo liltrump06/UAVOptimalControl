@@ -4,6 +4,9 @@ m = quadrotorParameter.m;
 g = quadrotorParameter.g;
 c = quadrotorParameter.c;
 b = quadrotorParameter.b;
+time_step = quadrotorParameter.Ts;
+Q = quadrotorParameter.Q;
+P = quadrotorParameter.P;
 pd = mpcinput.pd;
 vd = mpcinput.vd;
 ad = mpcinput.ad;
@@ -12,13 +15,18 @@ x = mpcinput.x;
 
 Fd = Fd_gene(vd,ad);
 F = F_gene(x);
-Q = eye(9)*10;
-P = eye(3);
-A22 = [0,0,0;0,0,0;0,0,-g(3)*c];
+
+A22 = eye(3)*-g*c;
 % A 9x9, B 9x3 
 A = [zeros([3,3]),eye(3),zeros([3,3]);zeros([3,3]),A22,1/m*eye(3);zeros([3,3]),zeros([3,3]),-b*eye(3)];
 B = zeros([9,3]);
 B(7:9,:) = eye(3);
+A = eye(9)+A*time_step;
+B = B*time_step;
+% sysc = ss(A,B,[],[]);
+% sysd = c2d(sysc,time_step);
+% A = sysd.A;
+% B = sysd.B;
 zd = [pd;vd;Fd];
 z0 = [x(1:6);F];
 % cvx_begin quiet
@@ -61,10 +69,16 @@ SS = LL'*Qhat*MM;
 RR = LL'*Qhat;
 
 u = HH\(RR*zdnew-SS*z0);
+% u = HH\(-SS*z0);
 uopt = u(1:3,:);
+unext = u(4:6,:);
 % uopt = u(:,1);
-mpcoutput.uopt = uopt;
+mpcoutput.uopt = -uopt;
+mpcoutput.unext = -unext;
 mpcoutput.F = F;
+z1 = A*z0+B*uopt;
+mpcoutput.Fnext = z1(7:9);
+mpcoutput.vnext = z1(4:6);
 
 
 
